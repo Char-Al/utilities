@@ -61,6 +61,7 @@ def remove_lines(file, sheets=None, all_sheets=False, lines=[1], output=None):
     for sheet in list_of_sheets:
         for line in lines:
             workbook[sheet].delete_rows(line)
+
     out_file = str()
     if output is None:
         out_file = file

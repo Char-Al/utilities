@@ -71,7 +71,46 @@ def remove_lines(file, sheets=None, all_sheets=False, lines=[1], output=None):
     workbook.save(out_file)
 
 
+@argh.arg(
+    'file', metavar="file.xlsx", type=str,
+    help="File to concatenate.")
+@argh.arg('--no-header', help="There is no header in sheets.")
+@argh.arg('--out-sheet', help="Write in a new sheet with this name.")
+@argh.arg('--output', help="Output file (default same file).")
+def concatenate_sheets(file, no_header=True, out_sheet="concat", output=None):
+    "Concatenate all sheet(s) into 1 sheet."
+    workbook = openpyxl.load_workbook(file)
+
+    ws = workbook.create_sheet(out_sheet)
+    line = 0
+    for sheet in workbook.sheetnames:
+        if sheet != out_sheet:
+            print(sheet)
+            current_line = 0
+            for row in workbook[sheet].rows:
+                current_line += 1
+                column = 0
+                if (
+                    (no_header is False and line == 0 and current_line == 1) or
+                    (no_header is False and current_line > 1) or
+                    (no_header is True)
+                ):
+                    line += 1
+                    for cell in row:
+                        column += 1
+                        column_letter = openpyxl.utils.get_column_letter(column)
+                        ws[f"{column_letter}{line}"].value = cell.value
+
+    out_file = str()
+    if output is None:
+        out_file = file
+    else:
+        out_file = output
+
+    workbook.save(out_file)
+
+
 if __name__ == '__main__':
     parser = argh.ArghParser()
-    parser.add_commands([merge_files, remove_lines])
+    parser.add_commands([merge_files, remove_lines, concatenate_sheets])
     parser.dispatch()

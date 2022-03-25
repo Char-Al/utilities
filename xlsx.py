@@ -63,11 +63,7 @@ def remove_lines(file, sheets=None, all_sheets=False, lines=[1], output=None):
             workbook[sheet].delete_rows(line)
 
     out_file = str()
-    if output is None:
-        out_file = file
-    else:
-        out_file = output
-
+    out_file = file if output is None else output
     workbook.save(out_file)
 
 
@@ -86,27 +82,19 @@ def concatenate_sheets(file, no_header=True, out_sheet="concat", output=None):
     for sheet in workbook.sheetnames:
         if sheet != out_sheet:
             print(sheet)
-            current_line = 0
-            for row in workbook[sheet].rows:
-                current_line += 1
-                column = 0
+            for current_line, row in enumerate(workbook[sheet].rows, start=1):
                 if (
                     (no_header is False and line == 0 and current_line == 1) or
                     (no_header is False and current_line > 1) or
                     (no_header is True)
                 ):
                     line += 1
-                    for cell in row:
-                        column += 1
+                    for column, cell in enumerate(row, start=1):
                         column_letter = openpyxl.utils.get_column_letter(column)
                         ws[f"{column_letter}{line}"].value = cell.value
 
     out_file = str()
-    if output is None:
-        out_file = file
-    else:
-        out_file = output
-
+    out_file = file if output is None else output
     workbook.save(out_file)
 
 
